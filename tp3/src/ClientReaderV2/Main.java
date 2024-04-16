@@ -9,7 +9,7 @@ import AjouterLigneFichier.AjouterLigneFichier;
 import com.rabbitmq.client.*;
 
 public class Main {
-    private static final String EXCHANGE_NAME = "READCLIENT";
+    private static final String EXCHANGE_NAME = "READCLIENTV2";
     private static final String QUEUE_NAME = "Reader";
 
     public static void main(String []args) throws Exception{
@@ -20,7 +20,7 @@ public class Main {
         AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientReaderV2");
 
         //initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("READ");
+        SendFinout sendFinout = new SendFinout("READV2");
 
         // Set up RabbitMQ connection and channel
         ConnectionFactory factory = new ConnectionFactory();
@@ -44,10 +44,11 @@ public class Main {
             sendFinout.send(message);
 
             channel.basicConsume(QUEUE_NAME, true, (consumerTag, delivery) -> {
-                    String receivedMessage = new String(delivery.getBody(), "UTF-8");
+
+                String receivedMessage = new String(delivery.getBody(), "UTF-8");
                     System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
 
-                    // writing it in the file fichier.txt in the repository ClientWriter
+                    // writing it in the file fichier.txt in the repository ClientWriterV2
                     ajoutLigne.ajouterLigne(receivedMessage);
 
                 }, consumerTag -> {

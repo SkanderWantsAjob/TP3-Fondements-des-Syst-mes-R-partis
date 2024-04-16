@@ -43,7 +43,7 @@ public class Main {
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws java.io.IOException {
-                if (processMessages.get()) { // Check if should process messages
+                if (processMessages.get()) {
                     String receivedMessage = new String(body, "UTF-8");
                     System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
 

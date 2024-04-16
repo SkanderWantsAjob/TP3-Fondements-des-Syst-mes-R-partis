@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="10d84ff7-247d-4769-a860-e7a1e0df56bc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/LireTousFichier/ReadAllFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/LireTousFichier/ReadAllFile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ClientReaderV2/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientReaderV2/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +40,7 @@
     "settings.editor.selected.configurable": "configurable.group.build"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.ReplicaRead 2">
     <configuration name="Replica 1" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Replica.Replica" />
       <module name="tp3" />
@@ -89,6 +89,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ReplicaV2 2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Replica.ReplicaV2" />
+      <module name="tp3" />
+      <option name="PROGRAM_PARAMETERS" value="2" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReplicaV2" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Replica.ReplicaV2" />
+      <module name="tp3" />
+      <option name="PROGRAM_PARAMETERS" value="1" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Application.ReplicaRead 3" />
       <item itemvalue="Application.Replica 2" />
@@ -96,6 +112,8 @@
       <item itemvalue="Application.ReplicaRead 1" />
       <item itemvalue="Application.ReplicaRead 2" />
       <item itemvalue="Application.Replica 1" />
+      <item itemvalue="Application.ReplicaV2" />
+      <item itemvalue="Application.ReplicaV2 2" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
