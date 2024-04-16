@@ -6,10 +6,6 @@ import AjouterLigneFichier.AjouterLigneFichier ;
 
 import sendFinout.SendFinout;
 
-import com. rabbitmq. client. ConnectionFactory;
-import com. rabbitmq.client.Connection;
-import com. rabbitmq. client.Channel;
-
 public class Main {
     public static void main(String []args) throws Exception{
 

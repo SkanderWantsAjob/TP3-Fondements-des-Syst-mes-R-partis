@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="10d84ff7-247d-4769-a860-e7a1e0df56bc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/ClientWrite/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientWrite/Main.java" afterDir="false" />
-    </list>
+    <list default="true" id="10d84ff7-247d-4769-a860-e7a1e0df56bc" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,9 +34,20 @@
     "last_opened_file_path": "C:/Users/R I B/Desktop/systemes repartis LAB1$$$/Jar Libs for java RabbitMq",
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "configurable.group.build"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="Replica 1" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Replica.Replica" />
+      <module name="tp3" />
+      <option name="PROGRAM_PARAMETERS" value="1" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -60,5 +69,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/tp3$Replica.ic" NAME="Replica Coverage Results" MODIFIED="1713287261057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>Replica.*</FILTER>
+    </SUITE>
   </component>
 </project>
