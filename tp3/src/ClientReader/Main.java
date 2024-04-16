@@ -28,7 +28,7 @@ public class Main {
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
 
-        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+        channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);;
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
@@ -45,21 +45,13 @@ public class Main {
             sendFinout.send(message);
 
             // Check if first message is received
-            firstMessageReceived.set(false);
-            if (!firstMessageReceived.get()) {
-
-                channel.basicConsume(QUEUE_NAME, true, (consumerTag, delivery) -> {
-                    String receivedMessage = new String(delivery.getBody(), "UTF-8");
-                    System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
-
-                    // writing it in the file fichier.txt in the repository ClientWriter
-                    ajoutLigne.ajouterLigne(receivedMessage);
-                    firstMessageReceived.set(true);
-
-                }, consumerTag -> {
-                });
+            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String ligneContent = new String(delivery.getBody(), "UTF-8");
+                System.out.println("Received from Replica: " + ligneContent);
+            };
+            GetResponse r = channel.basicGet(QUEUE_NAME, true);
+            System.out.println(r);
             }
 
         }
     }
-}
