@@ -22,9 +22,4 @@ public class sendFinout {
         }
     }
 
-    public static void main( String []args) throws Exception{
-        sendFinout.send("Write");
-    }
-
-
 }

@@ -1,39 +1,49 @@
 package ClientWrite;
+
+import java.util.Scanner;
+
+import AjouterLigneFichier.AjouterLigneFichier ;
+
+import sendFinout.SendFinout;
+
 import com. rabbitmq. client. ConnectionFactory;
 import com. rabbitmq.client.Connection;
 import com. rabbitmq. client.Channel;
 
 public class Main {
-    public static void main(String []args){
+    public static void main(String []args) throws Exception{
 
-    }
+        // initializing the scanner
+        Scanner scanner = new Scanner(System.in);
 
-/*
+        // initializing the AjouterLigneFichier
+        AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientWrite");
 
-    public  send(String BO) throws Exception {
-        QUEUE_NAME = BO;
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            JdbcRetrieve R = new JdbcRetrieve();
-            Vector<data> d = R.Retrieve(QUEUE_NAME);
-            String msg ;
-            for(data dt : d){
-                msg = dt.toString();
-                channel.basicPublish("", QUEUE_NAME, null, msg.getBytes());
-            }
+        //initializing the sendFinout class
+        SendFinout sendFinout = new SendFinout("WRITE");
+
+        System.out.println(" hello ! \n Every line you write here will be automatically added to the file 'fichier.txt' and replicated to online servers. \n \n ");
+
+        int ligneNumber = 0 ;
+        String ligneContent , text;
+
+        while(true){
+            // ligne number incrementation
+            ligneNumber ++ ;
+
+            // scanning the content and reforming it
+            ligneContent =" "+ligneNumber+"     ";
+            System.out.print(ligneContent);
+            ligneContent  += scanner.nextLine();
+
+            // writing it in the file fichier.txt in the repository ClientWriter
+            ajoutLigne.ajouterLigne(ligneContent);
+
+            // sending it to all the channels connected to the exchange WRITE
+            sendFinout.send(ligneContent);
+
         }
+
     }
 
-}
-
-    public static void main(String[] args) {
-        AjouterLigneFichier aj = new AjouterLigneFichier("ClientReader");
-        aj.ajouterLigne(1);
-    }
-
-
- */
 }
