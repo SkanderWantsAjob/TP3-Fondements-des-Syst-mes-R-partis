@@ -10,7 +10,7 @@ import com.rabbitmq.client.*;
 
 public class Main {
     private static final String EXCHANGE_NAME = "READCLIENTV2";
-    private static final String QUEUE_NAME = "Reader";
+    private static final String QUEUE_NAME = "Readerv2";
 
     public static void main(String []args) throws Exception{
         // initializing the scanner

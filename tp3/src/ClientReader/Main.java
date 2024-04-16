@@ -1,6 +1,5 @@
 package ClientReader;
 
-import java.net.SocketOption;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
