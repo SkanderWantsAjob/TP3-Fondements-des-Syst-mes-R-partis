@@ -1,5 +1,6 @@
 package ClientReader;
 
+import java.net.SocketOption;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -12,14 +13,14 @@ public class Main {
     private static final String EXCHANGE_NAME = "READCLIENT";
     private static final String QUEUE_NAME = "Reader"; // Replace with the queue name used by ReplicaClientRead
 
-    public static void main(String []args) throws Exception{
+    public static void main(String[] args) throws Exception {
         // initializing the scanner
         Scanner scanner = new Scanner(System.in);
 
         // initializing the AjouterLigneFichier
         AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientReader");
 
-        //initializing the sendFinout class
+        // initializing the sendFinout class
         SendFinout sendFinout = new SendFinout("READ");
 
         // Set up RabbitMQ connection and channel
@@ -32,34 +33,39 @@ public class Main {
         channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
 
-        System.out.println("Hello! You are the reader customer. \n write ‘Read Last’ to read the last line :\n ");
+        System.out.println("Hello! You are the reader customer. \n Write ‘Read Last’ to read the last line :\n ");
 
         String message;
-        AtomicBoolean firstMessageReceived = new AtomicBoolean(false);
-        while(true){
 
-            // Read user input
-            message = scanner.nextLine();
+        AtomicBoolean processMessages = new AtomicBoolean(true); // Flag to control message processing
 
-            // sending it to all the channels connected to the exchange READ
-            sendFinout.send(message);
-
-            // Check if first message is received
-            firstMessageReceived.set(false);
-            if (!firstMessageReceived.get()) {
-
-                channel.basicConsume(QUEUE_NAME, true, (consumerTag, delivery) -> {
-                    String receivedMessage = new String(delivery.getBody(), "UTF-8");
+        // Create a consumer to process messages
+        Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws java.io.IOException {
+                if (processMessages.get()) { // Check if should process messages
+                    String receivedMessage = new String(body, "UTF-8");
                     System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
 
                     // writing it in the file fichier.txt in the repository ClientWriter
                     ajoutLigne.ajouterLigne(receivedMessage);
-                    firstMessageReceived.set(true);
-
-                }, consumerTag -> {
-                });
+                    processMessages.set(false); // Stop processing further messages
+                }
+                else {
+                    System.out.println("no (test) :v");
+                }
             }
+        };
 
+        // Consume messages from the queue
+        channel.basicConsume(QUEUE_NAME, true, consumer);
+
+        // Wait for user input (program will continue running)
+        while (true) {
+            message = scanner.nextLine();
+            sendFinout.send(message);
+            processMessages.set(true); // Allow processing of next message
         }
     }
 }
+
