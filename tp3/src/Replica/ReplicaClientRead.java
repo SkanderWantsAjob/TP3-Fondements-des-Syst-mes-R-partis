@@ -14,7 +14,7 @@ public class ReplicaClientRead {
 
         //initializing the LireDernierLigneFichier
         String path = "Replica/rep"+argv[0];
-        LireDerniereLigneFichier lireDL = new LireDerniereLigneFichier("path");
+        LireDerniereLigneFichier lireDL = new LireDerniereLigneFichier(path);
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -37,6 +37,9 @@ public class ReplicaClientRead {
             SendFinout sn = new SendFinout("READCLIENT");
 
             try {
+                ligneContent.concat( "replica ");
+                ligneContent.concat(argv[0]) ;
+                System.out.println(ligneContent);
                 sn.send(ligneContent);
             }catch (Exception e){
                 System.out.println("replica can't send  ! ");
