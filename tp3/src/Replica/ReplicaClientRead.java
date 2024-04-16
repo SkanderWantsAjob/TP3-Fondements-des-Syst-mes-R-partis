@@ -1,19 +1,20 @@
 package Replica;
 
-import AjouterLigneFichier.AjouterLigneFichier ;
+import sendFinout.SendFinout ;
+import LireDernierLigne.LireDerniereLigneFichier;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 
-public class Replica {
-    private static final String EXCHANGE_NAME = "WRITE";
+public class ReplicaClientRead {
+    private static final String EXCHANGE_NAME = "READ";
 
     public static void main(String[] argv) throws Exception {
 
-        //initializing the ajouterLigneFichier
+        //initializing the LireDernierLigneFichier
         String path = "Replica/rep"+argv[0];
-        AjouterLigneFichier ajouterLigneFichier = new AjouterLigneFichier(path);
+        LireDerniereLigneFichier lireDL = new LireDerniereLigneFichier("path");
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -24,14 +25,22 @@ public class Replica {
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, EXCHANGE_NAME, "");
 
-        System.out.println("Hello here replica "+argv[0]+" server , you can see the message received and they are automatically stocked in rep "+argv[0]+"  :");
+        System.out.println("Hello here replica "+argv[0]+" server , the read customer wanted to read the last line !");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
             System.out.println(message);
 
-            // ajouter la ligne dans le fichier convenable
-            ajouterLigneFichier.ajouterLigne(message);
+            // Read the last lmine from the file
+            String ligneContent = lireDL.lireLigne();
+
+            SendFinout sn = new SendFinout("READCLIENT");
+
+            try {
+                sn.send(ligneContent);
+            }catch (Exception e){
+                System.out.println("replica can't send  ! ");
+            }
 
         };
 
@@ -39,5 +48,4 @@ public class Replica {
         });
     }
 }
-
 

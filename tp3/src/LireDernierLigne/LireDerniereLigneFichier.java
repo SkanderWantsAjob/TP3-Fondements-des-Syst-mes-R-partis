@@ -1,5 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+package LireDernierLigne;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -46,10 +45,5 @@ public class LireDerniereLigneFichier {
             System.err.println("Erreur lors de la lecture du fichier : " + e.getMessage());
         }
         return ""; // Return empty string if file is empty or an error occurred
-    }
-
-    public static void main(String[] args) {
-        LireDerniereLigneFichier lireDL = new LireDerniereLigneFichier("ClientReader");
-        System.out.println(lireDL.lireLigne());
     }
 }
