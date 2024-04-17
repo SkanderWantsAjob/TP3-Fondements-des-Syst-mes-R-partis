@@ -28,21 +28,24 @@ public class ReplicaV2{
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, EXCHANGE_NAME, "");
 
-        System.out.println("Hello here replicaV2 "+argv[0]+" server , the read customer wanted to read the all lines !");
+        System.out.println("Hello here replicaV2 "+argv[0]+" server , the read customer wanted to read  all lines !");
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
             System.out.println(message);
 
             // Read all the file
-            Vector<String> lines = lireAF.read();
+            String lines = lireAF.read();
 
             SendFinout sn = new SendFinout("READCLIENTV2");
 
             try {
-                sn.send(lines.toString());
+                sn.send(lines);
+                System.out.println("this msg has been sended to the Client Reader :");
+                System.out.println(lines);
+
             }catch (Exception e){
-                System.out.println("replica can't send  ! ");
+                System.out.println("replicav2 can't send  ! ");
             }
 
         };

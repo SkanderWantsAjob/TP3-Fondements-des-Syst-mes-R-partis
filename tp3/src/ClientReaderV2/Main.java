@@ -68,9 +68,9 @@ public class Main {
             }, consumerTag -> {
             });
 
-            String[] lines1 = lines.get(0).split("\\n") ;
-            String[] lines2 = lines.get(1).split("\\n") ;
-            String[] lines3 = lines.get(2).split("\\n");
+            String[] lines1 = lines.get(1).split("\\n") ;
+            String[] lines2 = lines.get(2).split("\\n") ;
+            String[] lines3 = lines.get(3).split("\\n");
             int size1 = lines1.length;
             int size2 = lines2.length;
             int size3 = lines3.length;

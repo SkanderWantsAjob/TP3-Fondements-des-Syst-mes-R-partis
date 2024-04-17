@@ -37,7 +37,7 @@ public class ReplicaClientRead {
             SendFinout sn = new SendFinout("READCLIENT");
 
             try {
-                System.out.println(ligneContent);
+                System.out.println("this msg has been sended to the Client Reader :"+ligneContent);
                 sn.send(ligneContent);
             }catch (Exception e){
                 System.out.println("replica can't send  ! ");
