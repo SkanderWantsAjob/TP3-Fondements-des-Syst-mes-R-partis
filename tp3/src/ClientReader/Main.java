@@ -51,7 +51,7 @@ public class Main {
                     processMessages.set(false); // Stop processing further messages
                 }
                 else {
-                    System.out.println("no (test) :v");
+                    System.out.print("\n");
                 }
             }
         };

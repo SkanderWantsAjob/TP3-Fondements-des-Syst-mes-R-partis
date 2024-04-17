@@ -49,7 +49,6 @@ public class Main {
             channel.basicConsume(QUEUE_NAME, false, (consumerTag, delivery) -> {
 
                 String receivedMessage = new String(delivery.getBody(), "UTF-8");
-                System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
 
                 //addind the result to lines
                 lines.add(receivedMessage);
@@ -63,47 +62,53 @@ public class Main {
                 // Check if reached 3 messages, then cancel consumer
                 if (messageCount.get() >= 3) {
                     channel.basicCancel(consumerTag);
+
+                    System.out.println("these lines wil be aded to the ClientReaderV2/fichier.txt : ");
+
+                    String[] lines1 = lines.get(0).split("\\n") ;
+                    String[] lines2 = lines.get(1).split("\\n") ;
+                    String[] lines3 = lines.get(2).split("\\n");
+                    int size1 = lines1.length;
+                    int size2 = lines2.length;
+                    int size3 = lines3.length;
+
+                    int i=0,j=0,k=0 ;
+                    while((i<size1)&&(j<size2)&&(k<size3)){
+                        if(lines1[i].equals(lines2[j]) )
+                        {
+                            if(lines1[i].equals(lines3[k]) ){
+                                k++;
+                            }
+                            System.out.println(lines1[i]);
+                            ajoutLigne.ajouterLigne(lines1[i]);
+                            i++;
+                            j++;
+                        }
+                        else if(lines1[i].equals(lines3[k]) ){
+                            System.out.println(lines1[i]);
+                            ajoutLigne.ajouterLigne(lines1[i]);
+                            i++;
+                            k++;
+                        }
+                        else if(lines2[j].equals(lines3[k]) ){
+                            System.out.println(lines2[j]);
+                            ajoutLigne.ajouterLigne(lines2[j]);
+                            j++;
+                            k++;
+                        }
+                        else{
+                            System.out.println("error there are not two servers that have the same line");
+                            i++;
+                            j++;
+                            k++;
+                        }
+
+                    }
                 }
 
             }, consumerTag -> {
             });
 
-            String[] lines1 = lines.get(1).split("\\n") ;
-            String[] lines2 = lines.get(2).split("\\n") ;
-            String[] lines3 = lines.get(3).split("\\n");
-            int size1 = lines1.length;
-            int size2 = lines2.length;
-            int size3 = lines3.length;
-
-            int i=0,j=0,k=0 ;
-            while((i<size1)&&(j<size2)&&(k<size3)){
-                if(lines1[i].equals(lines2[j]) )
-                {
-                    if(lines1[i].equals(lines3[k]) ){
-                        k++;
-                    }
-                    ajoutLigne.ajouterLigne(lines1[i]);
-                    i++;
-                    j++;
-                }
-                else if(lines1[i].equals(lines3[k]) ){
-                    ajoutLigne.ajouterLigne(lines1[i]);
-                    i++;
-                    k++;
-                }
-                else if(lines2[j].equals(lines3[k]) ){
-                    ajoutLigne.ajouterLigne(lines2[j]);
-                    j++;
-                    k++;
-                }
-                else{
-                    System.out.println("error there are not two servers that have the same line");
-                    i++;
-                    j++;
-                    k++;
-                }
-
-            }
 
         }
     }
