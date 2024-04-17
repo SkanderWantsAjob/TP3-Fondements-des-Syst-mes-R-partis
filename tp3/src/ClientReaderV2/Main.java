@@ -1,7 +1,8 @@
 package ClientReaderV2;
 
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Vector;
 
 import sendFinout.*;
 import AjouterLigneFichier.AjouterLigneFichier;
@@ -35,24 +36,75 @@ public class Main {
         System.out.println("Hello! You are the reader customer v2. \n write ‘Read All’ to read the all lines :\n ");
 
         String message;
+        Vector<String> lines = new Vector<>();
+        AtomicInteger messageCount = new AtomicInteger();
         while(true){
 
             // Read user input
             message = scanner.nextLine();
 
-            // sending it to all the channels connected to the exchange READ
+            // sending it to all the channels connected to the exchange READV2
             sendFinout.send(message);
 
-            channel.basicConsume(QUEUE_NAME, true, (consumerTag, delivery) -> {
+            channel.basicConsume(QUEUE_NAME, false, (consumerTag, delivery) -> {
 
                 String receivedMessage = new String(delivery.getBody(), "UTF-8");
-                    System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
+                System.out.println("Received message from ReplicaClientRead: " + receivedMessage);
 
-                    // writing it in the file fichier.txt in the repository ClientWriterV2
-                    ajoutLigne.ajouterLigne(receivedMessage);
+                //addind the result to lines
+                lines.add(receivedMessage);
 
-                }, consumerTag -> {
+                // Increase message count
+                messageCount.getAndIncrement();
+
+                // Acknowledge the message
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+
+                // Check if reached 3 messages, then cancel consumer
+                if (messageCount.get() >= 3) {
+                    channel.basicCancel(consumerTag);
+                }
+
+            }, consumerTag -> {
             });
+
+            String[] lines1 = lines.get(0).split("\\n") ;
+            String[] lines2 = lines.get(1).split("\\n") ;
+            String[] lines3 = lines.get(2).split("\\n");
+            int size1 = lines1.length;
+            int size2 = lines2.length;
+            int size3 = lines3.length;
+
+            int i=0,j=0,k=0 ;
+            while((i<size1)&&(j<size2)&&(k<size3)){
+                if(lines1[i].equals(lines2[j]) )
+                {
+                    if(lines1[i].equals(lines3[k]) ){
+                        k++;
+                    }
+                    ajoutLigne.ajouterLigne(lines1[i]);
+                    i++;
+                    j++;
+                }
+                else if(lines1[i].equals(lines3[k]) ){
+                    ajoutLigne.ajouterLigne(lines1[i]);
+                    i++;
+                    k++;
+                }
+                else if(lines2[j].equals(lines3[k]) ){
+                    ajoutLigne.ajouterLigne(lines2[j]);
+                    j++;
+                    k++;
+                }
+                else{
+                    System.out.println("error there are not two servers that have the same line");
+                    i++;
+                    j++;
+                    k++;
+                }
+
+            }
+
         }
     }
 }

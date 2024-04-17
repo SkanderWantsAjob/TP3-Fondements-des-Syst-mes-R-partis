@@ -40,9 +40,7 @@ public class ReplicaV2{
             SendFinout sn = new SendFinout("READCLIENTV2");
 
             try {
-                for(String line: lines){
-                    sn.send(line);
-                }
+                sn.send(lines.toString());
             }catch (Exception e){
                 System.out.println("replica can't send  ! ");
             }
