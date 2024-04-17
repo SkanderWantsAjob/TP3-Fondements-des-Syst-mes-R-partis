@@ -43,6 +43,7 @@ public class Main {
             // Read user input
             message = scanner.nextLine();
 
+            lines.clear();
             // sending it to all the channels connected to the exchange READV2
             sendFinout.send(message);
 
