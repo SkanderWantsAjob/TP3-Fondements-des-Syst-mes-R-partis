@@ -61,6 +61,7 @@ public class Main {
 
                 // Check if reached 3 messages, then cancel consumer
                 if (messageCount.get() >= 3) {
+
                     channel.basicCancel(consumerTag);
 
                     System.out.println("these lines wil be aded to the ClientReaderV2/fichier.txt : ");
@@ -104,6 +105,13 @@ public class Main {
                         }
 
                     }
+
+
+                    try{
+                        clearQueue(channel,QUEUE_NAME);
+                    }catch (Exception e){
+                        System.out.println("error in clearing the queue ");
+                    }
                 }
 
             }, consumerTag -> {
@@ -111,5 +119,16 @@ public class Main {
 
 
         }
+    }
+
+    public static void clearQueue(Channel receiveChannel, String queueName) throws Exception {
+        boolean queueNotEmpty = true;
+        while (queueNotEmpty) {
+            GetResponse nextResponse = receiveChannel.basicGet(queueName, true);
+            if (nextResponse == null) {
+                queueNotEmpty = false;
+            }
+        }
+        System.out.println("Queue cleared.");
     }
 }

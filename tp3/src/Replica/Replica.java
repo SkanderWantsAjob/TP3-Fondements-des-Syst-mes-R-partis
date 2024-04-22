@@ -1,19 +1,27 @@
 package Replica;
 
 import AjouterLigneFichier.AjouterLigneFichier ;
+import LireDernierLigne.LireDerniereLigneFichier;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
+import sendFinout.SendFinout;
 
 public class Replica {
-    private static final String EXCHANGE_NAME = "WRITE";
+    private static final String EXCHANGE_NAME = "SERVER";
 
     public static void main(String[] argv) throws Exception {
+
+        //initializing the sendFinout class
+        SendFinout sendFinout = new SendFinout("READER");
 
         //initializing the ajouterLigneFichier
         String path = "Replica/rep"+argv[0];
         AjouterLigneFichier ajouterLigneFichier = new AjouterLigneFichier(path);
+
+        //initializing the lireDernierLigneFichier
+        LireDerniereLigneFichier lireDerniereLigneFichier = new LireDerniereLigneFichier(path);
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -30,9 +38,19 @@ public class Replica {
             String message = new String(delivery.getBody(), "UTF-8");
             System.out.println(message);
 
-            // ajouter la ligne dans le fichier convenable
-            ajouterLigneFichier.ajouterLigne(message);
+            if( message.equals("Read Last") ){
+                System.out.println("Reader customer wants to read the last Line ! ");
+                try {
+                    sendFinout.send(lireDerniereLigneFichier.lireLigne());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                // ajouter la ligne dans le fichier convenable
+                ajouterLigneFichier.ajouterLigne(message);
 
+            }
         };
 
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
