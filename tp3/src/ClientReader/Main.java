@@ -18,10 +18,6 @@ public class Main {
         //initializing the sendFinout class
         SendFinout sendFinout = new SendFinout("SERVER");
 
-        //initializing the ajouterLigneFichier
-        String path = "ClientReader";
-        AjouterLigneFichier ajouterLigneFichier = new AjouterLigneFichier(path);
-
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();

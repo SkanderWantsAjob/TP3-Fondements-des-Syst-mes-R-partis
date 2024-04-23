@@ -1,5 +1,5 @@
 package LireTousFichier;
-
+import  java.util.Vector;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,9 +14,9 @@ public class ReadAllFile {
         this.fileName = "src/"+path+"/fichier.txt";
     }
 
-    public String read() {
+    public Vector<String> read() {
 
-        String lines ="" ;
+        Vector<String> lines = new Vector<String>() ;
         try {
             FileReader fileReader = new FileReader(fileName);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -24,8 +24,7 @@ public class ReadAllFile {
 
             // Lire chaque ligne du fichier jusqu'à la fin
             while ((line = bufferedReader.readLine()) != null) {
-                lines +=line;
-                lines +="\n";
+                lines.add(line);
             }
             bufferedReader.close(); // Fermer le lecteur
         } catch (IOException e) {

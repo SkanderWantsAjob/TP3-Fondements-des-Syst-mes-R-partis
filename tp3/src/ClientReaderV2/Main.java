@@ -1,134 +1,101 @@
 package ClientReaderV2;
-
+import java.util.regex.*;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Vector;
-
+import  java.util.Vector;
 import sendFinout.*;
 import AjouterLigneFichier.AjouterLigneFichier;
 
 import com.rabbitmq.client.*;
 
 public class Main {
-    private static final String EXCHANGE_NAME = "READCLIENTV2";
-    private static final String QUEUE_NAME = "Readerv2";
+    private static final String EXCHANGE_NAME = "READER";
 
-    public static void main(String []args) throws Exception{
+    public static void main(String[] args) throws Exception {
         // initializing the scanner
         Scanner scanner = new Scanner(System.in);
-
-        // initializing the AjouterLigneFichier
-        AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientReaderV2");
+        String text ;
 
         //initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("READV2");
+        SendFinout sendFinout = new SendFinout("SERVER");
 
-        // Set up RabbitMQ connection and channel
+        //initializing the ajouterLigneFichier
+        String path = "ClientReaderV2";
+        AjouterLigneFichier ajouterLigneFichier = new AjouterLigneFichier(path);
+
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
+        Channel channel = connection.createChannel(); // Corrected method name
 
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-        channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
+        String queueName = channel.queueDeclare().getQueue();
+        channel.queueBind(queueName, EXCHANGE_NAME, "");
 
-        System.out.println("Hello! You are the reader customer v2. \n write ‘Read All’ to read the all lines :\n ");
+        System.out.println("Hello here reader customer version 2 :");
 
-        String message;
-        Vector<String> lines = new Vector<>();
-        AtomicInteger messageCount = new AtomicInteger();
+        Vector<String> messages = new Vector<String>(3);
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            messages.add(message); // Ajouter le message au vecteur
+        };
+
+        channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
+
+        String  lastLigne = "" ;
         while(true){
+            text = scanner.nextLine();
+            sendFinout.send(text);
+            Thread.sleep(100);
 
-            // Read user input
-            message = scanner.nextLine();
+            int lastLingeNumber = 0 , lastReadLigneNumber ;
 
-            // sending it to all the channels connected to the exchange READV2
-            sendFinout.send(message);
+            for (String msg: messages ) {
+                lastReadLigneNumber = extractInteger(msg);
 
-            channel.basicConsume(QUEUE_NAME, false, (consumerTag, delivery) -> {
+                // testing if the extraction operation is well done
+                if (lastReadLigneNumber != -1) {
 
-                String receivedMessage = new String(delivery.getBody(), "UTF-8");
-
-                //addind the result to lines
-                lines.add(receivedMessage);
-
-                // Increase message count
-                messageCount.getAndIncrement();
-
-                // Acknowledge the message
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-
-                // Check if reached 3 messages, then cancel consumer
-                if (messageCount.get() >= 3) {
-
-                    channel.basicCancel(consumerTag);
-
-                    System.out.println("these lines wil be aded to the ClientReaderV2/fichier.txt : ");
-
-                    String[] lines1 = lines.get(0).split("\\n") ;
-                    String[] lines2 = lines.get(1).split("\\n") ;
-                    String[] lines3 = lines.get(2).split("\\n");
-                    int size1 = lines1.length;
-                    int size2 = lines2.length;
-                    int size3 = lines3.length;
-
-                    int i=0,j=0,k=0 ;
-                    while((i<size1)&&(j<size2)&&(k<size3)){
-                        if(lines1[i].equals(lines2[j]) )
-                        {
-                            if(lines1[i].equals(lines3[k]) ){
-                                k++;
-                            }
-                            System.out.println(lines1[i]);
-                            ajoutLigne.ajouterLigne(lines1[i]);
-                            i++;
-                            j++;
-                        }
-                        else if(lines1[i].equals(lines3[k]) ){
-                            System.out.println(lines1[i]);
-                            ajoutLigne.ajouterLigne(lines1[i]);
-                            i++;
-                            k++;
-                        }
-                        else if(lines2[j].equals(lines3[k]) ){
-                            System.out.println(lines2[j]);
-                            ajoutLigne.ajouterLigne(lines2[j]);
-                            j++;
-                            k++;
-                        }
-                        else{
-                            System.out.println("error there are not two servers that have the same line");
-                            i++;
-                            j++;
-                            k++;
-                        }
-
+                    // we want to read the last ligne => the biggest lastReadLigneNumber
+                    if(lastReadLigneNumber > lastLingeNumber){
+                        lastLingeNumber = lastReadLigneNumber ;
+                        lastLigne = msg ;
                     }
 
-
-                    try{
-                        clearQueue(channel,QUEUE_NAME);
-                    }catch (Exception e){
-                        System.out.println("error in clearing the queue ");
-                    }
+                } else {
+                    System.out.println(" message recieved from the SERVER ne convient pas l'expression reguliere imposé ! ");
                 }
+            }
+            if(lastLigne.equals("")){
+                System.out.println(" there's no message recieve from Replica !  ");
+            }else{
+                System.out.println(" after recieving all the messages from the opened server (replica ) , the last ligne writed by the writer customer :");
+                System.out.println(lastLigne+"\n");
 
-            }, consumerTag -> {
-            });
+            }
 
-
+            messages.clear();
         }
     }
+    public static int extractInteger(String message) {
+        // Expression régulière pour extraire l'entier au début du message
+        String pattern = "^\\s*(\\d+)\\s+.*";
 
-    public static void clearQueue(Channel receiveChannel, String queueName) throws Exception {
-        boolean queueNotEmpty = true;
-        while (queueNotEmpty) {
-            GetResponse nextResponse = receiveChannel.basicGet(queueName, true);
-            if (nextResponse == null) {
-                queueNotEmpty = false;
-            }
+        // Création de l'objet Pattern
+        Pattern p = Pattern.compile(pattern);
+
+        // Création de l'objet Matcher
+        Matcher m = p.matcher(message);
+
+        // Vérification de la correspondance
+        if (m.find()) {
+            // Si une correspondance est trouvée, extraire et retourner l'entier
+            return Integer.parseInt(m.group(1));
+        } else {
+            // Si aucune correspondance n'est trouvée, retourner -1 ou une valeur par défaut
+            return -1;
         }
-        System.out.println("Queue cleared.");
     }
 }
+
+
