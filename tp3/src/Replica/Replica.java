@@ -1,5 +1,5 @@
 package Replica;
-
+import java.util.regex.*;
 import AjouterLigneFichier.AjouterLigneFichier ;
 import LireDernierLigne.LireDerniereLigneFichier;
 import com.rabbitmq.client.ConnectionFactory;
@@ -36,7 +36,6 @@ public class Replica {
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println(message);
 
             if( message.equals("Read Last") ){
                 System.out.println("Reader customer wants to read the last Line ! ");
@@ -47,14 +46,33 @@ public class Replica {
                 }
             }
             else{
-                // ajouter la ligne dans le fichier convenable
-                ajouterLigneFichier.ajouterLigne(message);
+                if(testStringFormat(message)){
+                    ajouterLigneFichier.ajouterLigne(message);
+                    System.out.println("le ligne :\""+message+"\" est ajouté avec succés dans rep"+argv[0]+"/fichier.txt !");
 
+                }
+                else{
+                    System.out.println("Commande non reconnue a été envoyé par ClientReader !");
+                }
             }
         };
 
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
         });
+    }
+
+    public static boolean testStringFormat(String input) {
+        // Expression régulière pour correspondre à "nombre espaces texte"
+        String pattern = "\\s*+\\d+\\s+\\S+.*";
+
+        // Création de l'objet Pattern
+        Pattern p = Pattern.compile(pattern);
+
+        // Création de l'objet Matcher
+        Matcher m = p.matcher(input);
+
+        // Vérification de la correspondance
+        return m.matches();
     }
 }
 

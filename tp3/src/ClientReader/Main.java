@@ -1,6 +1,7 @@
 package ClientReader;
 
 import java.util.Scanner;
+import  java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import LireDernierLigne.LireDerniereLigneFichier;
@@ -40,6 +41,8 @@ public class Main {
             System.out.println(message);
 
         };
+        Vector<String> messages = new Vector<String>(3);
+
         while(true){
             text = scanner.nextLine();
             sendFinout.send(text);
