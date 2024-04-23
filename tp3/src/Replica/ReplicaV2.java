@@ -8,12 +8,12 @@ import com.rabbitmq.client.DeliverCallback;
 import sendFinout.SendFinout;
 
 public class ReplicaV2 {
-    private static final String EXCHANGE_NAME = "SERVER";
+    private static final String EXCHANGE_NAME = "SERVER2";
 
     public static void main(String[] argv) throws Exception {
 
         //initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("READER");
+        SendFinout sendFinout = new SendFinout("READER2");
 
         //initializing the lireTousLigneFichier
         String path = "Replica/rep"+argv[0];
@@ -38,6 +38,7 @@ public class ReplicaV2 {
                 try {
                     Vector<String> lines = lireTousFichier.read();
                     for(String line : lines){
+                        System.out.println(line);
                         sendFinout.send(line);
                     }
                 } catch (Exception e) {

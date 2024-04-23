@@ -8,7 +8,7 @@ import AjouterLigneFichier.AjouterLigneFichier;
 import com.rabbitmq.client.*;
 
 public class Main {
-    private static final String EXCHANGE_NAME = "READER";
+    private static final String EXCHANGE_NAME = "READER2";
 
     public static void main(String[] args) throws Exception {
         // initializing the scanner
@@ -16,7 +16,7 @@ public class Main {
         String text ;
 
         //initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("SERVER");
+        SendFinout sendFinout = new SendFinout("SERVER2");
 
         //initializing the ajouterLigneFichier
         String path = "ClientReaderV2";
@@ -42,38 +42,63 @@ public class Main {
 
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
 
-        String  lastLigne = "" ;
         while(true){
             text = scanner.nextLine();
             sendFinout.send(text);
             Thread.sleep(100);
 
-            int lastLingeNumber = 0 , lastReadLigneNumber ;
+            // Vector pour stocker les numéros de ligne
+            Vector<Integer> lineNumbers = new Vector<Integer>();
 
-            for (String msg: messages ) {
-                lastReadLigneNumber = extractInteger(msg);
+            // Initialiser lineNumbers avec les numéros de ligne extraits des messages
+            for (String message : messages) {
+                lineNumbers.add(extractInteger(message));
+            }
 
-                // testing if the extraction operation is well done
-                if (lastReadLigneNumber != -1) {
+            // Tri des messages et des numéros de ligne en parallèle en utilisant le tri à bulle
+            boolean switched = true;
+            while (switched) {
+                switched = false;
+                for (int i = 0; i < lineNumbers.size() - 1; i++) {
+                    if (lineNumbers.get(i) > lineNumbers.get(i + 1)) {
+                        // Échanger les positions des numéros de ligne
+                        int tempLineNumber = lineNumbers.get(i);
+                        lineNumbers.set(i, lineNumbers.get(i + 1));
+                        lineNumbers.set(i + 1, tempLineNumber);
 
-                    // we want to read the last ligne => the biggest lastReadLigneNumber
-                    if(lastReadLigneNumber > lastLingeNumber){
-                        lastLingeNumber = lastReadLigneNumber ;
-                        lastLigne = msg ;
+                        // Échanger les positions des messages
+                        String tempMessage = messages.get(i);
+                        messages.set(i, messages.get(i + 1));
+                        messages.set(i + 1, tempMessage);
+
+                        switched = true;
                     }
-
-                } else {
-                    System.out.println(" message recieved from the SERVER ne convient pas l'expression reguliere imposé ! ");
                 }
             }
-            if(lastLigne.equals("")){
-                System.out.println(" there's no message recieve from Replica !  ");
-            }else{
-                System.out.println(" after recieving all the messages from the opened server (replica ) , the last ligne writed by the writer customer :");
-                System.out.println(lastLigne+"\n");
+            int multiplicityNumber =1;
+            Vector<String> textFile = new Vector<String>();
 
+            for (int i=0; i<messages.size()-1;i++) {
+                if(messages.get(i).equals(messages.get(i+1))){
+                    multiplicityNumber ++;
+                }else{
+                    if(multiplicityNumber >= 2){
+                        textFile.add(messages.get(i));
+                    }
+                    multiplicityNumber = 1;
+                }
+            }
+            // Vérifier le dernier message
+            if (multiplicityNumber >= 2) {
+                textFile.add(messages.lastElement());
             }
 
+            for(String t : textFile){
+                System.out.println(t);
+            }
+
+            lineNumbers.clear();
+            textFile.clear();
             messages.clear();
         }
     }
