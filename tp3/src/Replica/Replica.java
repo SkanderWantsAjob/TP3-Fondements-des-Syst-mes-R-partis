@@ -38,10 +38,12 @@ public class Replica {
             String message = new String(delivery.getBody(), "UTF-8");
 
             if( message.equals("Read Last") ){
+                String lastLigne = lireDerniereLigneFichier.lireLigne() ;
                 System.out.println("Reader customer wants to read the last Line ! ");
                 try {
-                    sendFinout.send(lireDerniereLigneFichier.lireLigne());
+                    sendFinout.send(lastLigne);
                 } catch (Exception e) {
+                    System.out.println("there's an exception in the sendFinout lastLigne to the cleint reader ! ");
                     throw new RuntimeException(e);
                 }
             }
