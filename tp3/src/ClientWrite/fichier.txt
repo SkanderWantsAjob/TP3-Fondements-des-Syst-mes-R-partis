@@ -1,10 +1,1 @@
-<<<<<<< HEAD
-=======
- 1     heeellloooooo
- 2     hzzezee
- 3     nfjkezfzefn
- 4     nednsnfejznfe
- 5     nejfznjekf
- 6     kjzefjkezfe
- 7     jncdzjkznf
->>>>>>> f937659b500a42cac94ac2302f4e2d3500548379
+
