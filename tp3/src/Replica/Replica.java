@@ -1,19 +1,27 @@
 package Replica;
-
+import java.util.regex.*;
 import AjouterLigneFichier.AjouterLigneFichier ;
+import LireDernierLigne.LireDerniereLigneFichier;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
+import sendFinout.SendFinout;
 
 public class Replica {
-    private static final String EXCHANGE_NAME = "WRITE";
+    private static final String EXCHANGE_NAME = "SERVER";
 
     public static void main(String[] argv) throws Exception {
+
+        //initializing the sendFinout class
+        SendFinout sendFinout = new SendFinout("READER");
 
         //initializing the ajouterLigneFichier
         String path = "Replica/rep"+argv[0];
         AjouterLigneFichier ajouterLigneFichier = new AjouterLigneFichier(path);
+
+        //initializing the lireDernierLigneFichier
+        LireDerniereLigneFichier lireDerniereLigneFichier = new LireDerniereLigneFichier(path);
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -28,15 +36,45 @@ public class Replica {
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println(message);
 
-            // ajouter la ligne dans le fichier convenable
-            ajouterLigneFichier.ajouterLigne(message);
+            if( message.equals("Read Last") ){
+                String lastLigne = lireDerniereLigneFichier.lireLigne() ;
+                System.out.println("Reader customer wants to read the last Line ! ");
+                try {
+                    sendFinout.send(lastLigne);
+                } catch (Exception e) {
+                    System.out.println("there's an exception in the sendFinout lastLigne to the cleint reader ! ");
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                if(testStringFormat(message)){
+                    ajouterLigneFichier.ajouterLigne(message);
+                    System.out.println("le ligne :\""+message+"\" est ajouté avec succés dans rep"+argv[0]+"/fichier.txt !");
 
+                }
+                else{
+                    System.out.println("Commande non reconnue a été envoyé par ClientReader !");
+                }
+            }
         };
 
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
         });
+    }
+
+    public static boolean testStringFormat(String input) {
+        // Expression régulière pour correspondre à "nombre espaces texte"
+        String pattern = "\\s*+\\d+\\s+\\S+.*";
+
+        // Création de l'objet Pattern
+        Pattern p = Pattern.compile(pattern);
+
+        // Création de l'objet Matcher
+        Matcher m = p.matcher(input);
+
+        // Vérification de la correspondance
+        return m.matches();
     }
 }
 

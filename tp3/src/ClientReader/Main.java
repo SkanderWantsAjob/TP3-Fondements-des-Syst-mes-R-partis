@@ -1,129 +1,99 @@
 package ClientReader;
-
+import java.util.regex.*;
 import java.util.Scanner;
-import java.util.Vector;
-import java.util.Scanner;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import  java.util.Vector;
 import sendFinout.*;
-import AjouterLigneFichier.AjouterLigneFichier;
 
 import com.rabbitmq.client.*;
 
 public class Main {
-    private static final String EXCHANGE_NAME = "READCLIENT";
-    private static final String QUEUE_NAME = "Reader"; // Replace with the queue name used by ReplicaClientRead
+    private static final String EXCHANGE_NAME = "READER";
 
     public static void main(String[] args) throws Exception {
         // initializing the scanner
         Scanner scanner = new Scanner(System.in);
+        String text ;
 
-        // initializing the AjouterLigneFichier
-        AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientReader");
+        //initializing the sendFinout class
+        SendFinout sendFinout = new SendFinout("SERVER");
 
-        // initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("READ");
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel(); // Corrected method name
 
-
-        System.out.println("Hello! You are the reader customer. \n Write ‘Read Last’ to read the last line :\n ");
-
-        String message;
-
-        Vector<String> messagesRetreive = new Vector<>();
-        AtomicInteger messageCount = new AtomicInteger();
-
-        while (true) {
-            // Set up RabbitMQ connection and channel
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
-
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "");
-
-            messagesRetreive.clear();
-
-            // Read user input
-            message = scanner.nextLine();
-
-            // sending it to all the channels connected to the exchange READV2
-            sendFinout.send(message);
+        channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+        String queueName = channel.queueDeclare().getQueue();
+        channel.queueBind(queueName, EXCHANGE_NAME, "");
 
 
-            channel.basicConsume(QUEUE_NAME, false, (consumerTag, delivery) -> {
+        System.out.println("Hello here reader customer :");
 
-                String receivedMessage = new String(delivery.getBody(), "UTF-8");
+        Vector<String> messages = new Vector<String>(3);
 
-                //addind the result to lines
-                messagesRetreive.add(receivedMessage);
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            messages.add(message); // Ajouter le message au vecteur
+        };
 
-                // Increase message count
-                messageCount.getAndIncrement();
+        channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {});
 
-                // Acknowledge the message
-                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+        String  lastLigne = "" ;
+        while(true){
+            text = scanner.nextLine();
+            sendFinout.send(text);
+            Thread.sleep(100);
 
-                // Check if reached 3 messages, then cancel consumer
-                if (messageCount.get() >= 3) {
-                    //channel.basicCancel(consumerTag);
-                    channel.basicCancel(consumerTag);
-                    System.out.println("these lines wil be aded to the ClientReader/fichier.txt : ");
+            int lastLingeNumber = 0 , lastReadLigneNumber ;
 
-                    int lineNum1 = extractFirstNumber(messagesRetreive.get(0));
-                    int lineNum2 = extractFirstNumber(messagesRetreive.get(1));
-                    int lineNum3 = extractFirstNumber(messagesRetreive.get(2));
+            for (String msg: messages ) {
+                lastReadLigneNumber = extractInteger(msg);
 
-                    System.out.println(lineNum3);
-                    System.out.println(lineNum1);
-                    System.out.println(lineNum2);
+                // testing if the extraction operation is well done
+                if (lastReadLigneNumber != -1) {
 
-                    if(lineNum1 >= lineNum2){
-                        if(lineNum1 >= lineNum3){
-                            System.out.println(messagesRetreive.get(0));
-                            ajoutLigne.ajouterLigne(messagesRetreive.get(0));
-                        }else{
-                            System.out.println(messagesRetreive.get(2));
-                            ajoutLigne.ajouterLigne(messagesRetreive.get(2));
-                        }
-                    }else { // 1<2
-                        if(lineNum2 >= lineNum3){
-                            System.out.println(messagesRetreive.get(1));
-                            ajoutLigne.ajouterLigne(messagesRetreive.get(1));
-                        }else{
-                            System.out.println(messagesRetreive.get(2));
-                            ajoutLigne.ajouterLigne(messagesRetreive.get(2));
-                        }
+                    // we want to read the last ligne => the biggest lastReadLigneNumber
+                    if(lastReadLigneNumber > lastLingeNumber){
+                        lastLingeNumber = lastReadLigneNumber ;
+                        lastLigne = msg ;
                     }
+
+                } else {
+                    System.out.println(" message recieved from the SERVER ne convient pas l'expression reguliere imposé ! ");
                 }
-
-            }, consumerTag -> {  });
-
-
-        }
-
-    }
-
-    public static int extractFirstNumber(String input) {
-        Scanner scanner = new Scanner(input);
-
-        // Find the first occurrence of a number in the string
-        while (scanner.hasNext()) {
-            if (scanner.hasNextInt()) {
-                int number = scanner.nextInt();
-                scanner.close(); // Close the scanner
-                return number;
-            } else {
-                scanner.next(); // Move to the next token if it's not an integer
             }
+            if(lastLigne.equals("")){
+                System.out.println(" there's no message recieve from Replica !  ");
+            }else{
+                System.out.println(" after recieving all the messages from the opened server (replica ) , the last ligne writed by the writer customer :");
+                System.out.println(lastLigne+"\n");
+
+            }
+
+            messages.clear();
+        }
+    }
+    public static int extractInteger(String message) {
+        // Expression régulière pour extraire l'entier au début du message
+        String pattern = "^\\s*(\\d+)\\s+.*";
+
+        // Création de l'objet Pattern
+        Pattern p = Pattern.compile(pattern);
+
+        // Création de l'objet Matcher
+        Matcher m = p.matcher(message);
+
+        // Vérification de la correspondance
+        if (m.find()) {
+            // Si une correspondance est trouvée, extraire et retourner l'entier
+            return Integer.parseInt(m.group(1));
+        } else {
+            // Si aucune correspondance n'est trouvée, retourner -1 ou une valeur par défaut
+            return -1;
         }
 
-        scanner.close(); // Close the scanner
-        return -1; // Default value, you can change this according to your requirement
     }
 
 }
+
 

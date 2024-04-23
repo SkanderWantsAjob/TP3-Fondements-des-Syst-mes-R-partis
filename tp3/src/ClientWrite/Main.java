@@ -16,7 +16,7 @@ public class Main {
         AjouterLigneFichier ajoutLigne = new AjouterLigneFichier("ClientWrite");
 
         //initializing the sendFinout class
-        SendFinout sendFinout = new SendFinout("WRITE");
+        SendFinout sendFinout = new SendFinout("SERVER");
 
         System.out.println(" hello ! \n Every line you write here will be automatically added to the file 'fichier.txt' and replicated to online servers. \n \n ");
 

@@ -38,7 +38,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.build&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.ReplicaV2 3">
+  <component name="RunManager" selected="Application.ClientReaderV2">
     <configuration name="ClientReader" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="ClientReader.Main" />
       <module name="tp3" />
@@ -84,30 +84,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ReplicaRead 1" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Replica.ReplicaClientRead" />
-      <module name="tp3" />
-      <option name="PROGRAM_PARAMETERS" value="1" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ReplicaRead 2" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Replica.ReplicaClientRead" />
-      <module name="tp3" />
-      <option name="PROGRAM_PARAMETERS" value="2" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ReplicaRead 3" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Replica.ReplicaClientRead" />
-      <module name="tp3" />
-      <option name="PROGRAM_PARAMETERS" value="3" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="ReplicaV2 2" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Replica.ReplicaV2" />
       <module name="tp3" />
@@ -134,11 +110,8 @@
     </configuration>
     <list>
       <item itemvalue="Application.ReplicaV2 3" />
-      <item itemvalue="Application.ReplicaRead 3" />
       <item itemvalue="Application.Replica 2" />
       <item itemvalue="Application.Replica 3" />
-      <item itemvalue="Application.ReplicaRead 1" />
-      <item itemvalue="Application.ReplicaRead 2" />
       <item itemvalue="Application.Replica 1" />
       <item itemvalue="Application.ReplicaV2" />
       <item itemvalue="Application.ReplicaV2 2" />
