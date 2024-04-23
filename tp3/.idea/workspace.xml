@@ -38,7 +38,11 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.build&quot;
   }
 }</component>
+<<<<<<< HEAD
   <component name="RunManager" selected="Application.Replica 1">
+=======
+  <component name="RunManager" selected="Application.ReplicaV2 3">
+>>>>>>> f937659b500a42cac94ac2302f4e2d3500548379
     <configuration name="ClientReader" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="ClientReader.Main" />
       <module name="tp3" />

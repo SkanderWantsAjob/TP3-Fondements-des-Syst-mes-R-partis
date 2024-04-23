@@ -1,6 +1,5 @@
 package Replica;
 import java.util.Vector;
-import java.util.regex.*;
 import LireTousFichier.*;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;

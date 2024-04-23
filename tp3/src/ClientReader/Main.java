@@ -3,7 +3,6 @@ import java.util.regex.*;
 import java.util.Scanner;
 import  java.util.Vector;
 import sendFinout.*;
-import AjouterLigneFichier.AjouterLigneFichier;
 
 import com.rabbitmq.client.*;
 
@@ -26,6 +25,7 @@ public class Main {
         channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
         String queueName = channel.queueDeclare().getQueue();
         channel.queueBind(queueName, EXCHANGE_NAME, "");
+
 
         System.out.println("Hello here reader customer :");
 
@@ -91,7 +91,9 @@ public class Main {
             // Si aucune correspondance n'est trouvée, retourner -1 ou une valeur par défaut
             return -1;
         }
+
     }
+
 }
 
 
